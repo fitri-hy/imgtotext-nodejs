@@ -196,24 +196,41 @@ int main() {
 		});
 
         document.getElementById('uploadForm').onsubmit = async (event) => {
-            event.preventDefault();
-            const form = event.target;
-            const formData = new FormData(form);
+			event.preventDefault();
+			const form = event.target;
+			const formData = new FormData(form);
 
-            document.getElementById('result').innerText = 'Processing...';
+			document.getElementById('result').innerText = 'Processing...';
 
-            const response = await fetch('/api/generate/upload', {
-                method: 'POST',
-                body: formData
-            });
+			try {
+				const response = await fetch('/api/generate/upload', {
+					method: 'POST',
+					body: formData
+				});
 
-            if (response.ok) {
-                const data = await response.json();
-                document.getElementById('result').innerText = data.text;
-            } else {
-                document.getElementById('result').innerText = 'Error processing image';
-            }
-        };
+				if (response.ok) {
+					const data = await response.json();
+					document.getElementById('result').innerText = data.text;
+					
+					localStorage.setItem('uploadResult', JSON.stringify(data));
+
+				} else {
+					document.getElementById('result').innerText = 'Error processing image';
+				}
+			} catch (error) {
+				console.error('Error:', error);
+				document.getElementById('result').innerText = 'Error processing image';
+			}
+		};
+
+		window.onload = () => {
+			const savedData = localStorage.getItem('uploadResult');
+			if (savedData) {
+				const data = JSON.parse(savedData);
+				document.getElementById('result').innerText = data.text;
+			}
+		};
+
     </script>
 </body>
 </html>
